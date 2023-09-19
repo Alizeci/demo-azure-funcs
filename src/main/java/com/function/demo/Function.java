@@ -25,6 +25,16 @@ public class Function {
         final ExecutionContext context) {
 
         context.getLogger().info("Java HTTP trigger processed a request.");
+
+        String providedHostKey = request.getHeaders().get("Authorization");
+        context.getLogger().info("providedKey: " + providedHostKey);
+        String expectedHostKey = System.getenv("AzureWebJobsSecretStorageKey");
+        context.getLogger().info("expectedKey: " + expectedHostKey);
+
+        if (providedHostKey == null || !providedHostKey.equals(expectedHostKey)) {
+            return request.createResponseBuilder(HttpStatus.UNAUTHORIZED).body("Unauthorized").build();
+        }
+
         final String message = request.getBody().orElse(null);
 
         if (message == null) {
